@@ -13,7 +13,7 @@ class _proyectosState extends State<proyectos> {
   TextEditingController proyectoController = TextEditingController();
 
   Future<List<dynamic>> obtenerProyectos() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/projects'));
+    final response = await http.get(Uri.parse('https://monge.terrabyteco.com/api/projects'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -110,7 +110,7 @@ class _proyectosState extends State<proyectos> {
 
   void _crearProyecto(String nombreProyecto) async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/projects/create'),
+      Uri.parse('https://monge.terrabyteco.com/api/projects/create'),
       body: {'name': nombreProyecto},
     );
 

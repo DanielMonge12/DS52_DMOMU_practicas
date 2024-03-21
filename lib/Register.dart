@@ -11,15 +11,21 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController surnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController imageController = TextEditingController();
 
   Future<void> registerUser() async {
-    final String url = 'http://127.0.0.1:8000/api/users/create';
+    final String url = 'https://monge.terrabyteco.com/api/users/create';
     final Map<String, dynamic> body = {
       'name': nameController.text,
+      'surname': surnameController.text,
       'email': emailController.text,
+      'phone': phoneController.text, 
       'password': passwordController.text,
+      'image': imageController.text,
     };
 
     try {
@@ -73,14 +79,32 @@ class _RegisterState extends State<Register> {
             ),
             SizedBox(height: 16),
             TextFormField(
+              controller: surnameController,
+              decoration: InputDecoration(labelText: 'Apellido'),
+              
+            ),
+            SizedBox(height: 16),
+            TextFormField(
               controller: emailController,
               decoration: InputDecoration(labelText: 'Correo electrónico'),
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: phoneController,
+              decoration: InputDecoration(labelText: 'Telefono'),
+              
             ),
             SizedBox(height: 16),
             TextFormField(
               controller: passwordController,
               decoration: InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
+            ),
+            SizedBox(height: 16),
+            TextFormField(
+              controller: imageController,
+              decoration: InputDecoration(labelText: 'Imagen'),
+              
             ),
             SizedBox(height: 16),
             ElevatedButton(
