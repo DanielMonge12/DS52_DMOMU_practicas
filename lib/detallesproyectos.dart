@@ -9,8 +9,12 @@ class detallesproyectos extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detalles del Proyecto'),
+        backgroundColor: Colors.black,
+        title: const Text('Detalles del Proyecto',
+         style: TextStyle(color: Colors.blue),
+        ), 
       ),
+      backgroundColor: Colors.black,
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
@@ -18,22 +22,22 @@ class detallesproyectos extends StatelessWidget {
           children: [
             Text(
               'Nombre: ${proyecto['name']}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue), // Texto en azul
             ),
             SizedBox(height: 10),
             Text(
               'ID: ${proyecto['id']}',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.blue), // Texto en azul
             ),
             SizedBox(height: 10),
             Text(
               'Fecha: ${proyecto['date']}',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.blue), // Texto en azul
             ),
             SizedBox(height: 10),
             Text(
               'Duración: ${proyecto['duration']}',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.blue), // Texto en azul
             ),
             SizedBox(height: 10),
             // Agrega más detalles aquí según la estructura de tu proyecto

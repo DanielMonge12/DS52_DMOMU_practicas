@@ -48,9 +48,13 @@ class _metodologiasState extends State<metodologias> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text('Información de Metodologías Ágiles'),
+        backgroundColor: Color.fromARGB(255, 182, 11, 11), // Azul oscuro para el fondo del título
+        title: const Text(
+          'Información de Metodologías Ágiles',
+          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)), // Color rojo para el texto del título
+        ),
       ),
+      backgroundColor: Colors.black, // Fondo negro para toda la pantalla
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -62,12 +66,13 @@ class _metodologiasState extends State<metodologias> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20.0,
+                  color: Colors.red, // Texto en rojo
                 ),
               ),
               SizedBox(height: 10.0),
               Text(
                 'Las metodologías ágiles son un conjunto de prácticas para el desarrollo de software basadas en los principios del Manifiesto Ágil. Algunas de las metodologías ágiles más populares son Scrum, Kanban, eXtreme Programming (XP), entre otras.',
-                style: TextStyle(fontSize: 16.0),
+                style: TextStyle(fontSize: 16.0, color: Colors.red), // Texto en rojo
               ),
               SizedBox(height: 20.0),
               Text(
@@ -75,14 +80,10 @@ class _metodologiasState extends State<metodologias> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18.0,
+                  color: Colors.red, // Texto en rojo
                 ),
               ),
               SizedBox(height: 10.0),
-              Text(
-                '',
-                style: TextStyle(fontSize: 16.0),
-              ),
-              SizedBox(height: 20.0),
               InkWell(
                 onTap: () {
                   _launchURL('https://www.scrum.org/');
@@ -103,6 +104,9 @@ class _metodologiasState extends State<metodologias> {
                     MaterialPageRoute(builder: (context) => InformacionGrupo(metodologia: 'Scrum')),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red, // Fondo rojo para el botón
+                ),
                 child: Text('Agregar a grupo (Scrum)'),
               ),
               SizedBox(height: 20.0),
@@ -111,6 +115,7 @@ class _metodologiasState extends State<metodologias> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18.0,
+                  color: Colors.red, // Texto en rojo
                 ),
               ),
               SizedBox(height: 10.0),
@@ -125,6 +130,7 @@ class _metodologiasState extends State<metodologias> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18.0,
+                  color: Colors.red, // Texto en rojo
                 ),
               ),
               SizedBox(height: 20.0),
@@ -135,6 +141,9 @@ class _metodologiasState extends State<metodologias> {
                     MaterialPageRoute(builder: (context) => InformacionGrupo(metodologia: 'Cascada')),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red, // Fondo rojo para el botón
+                ),
                 child: Text('Agregar a grupo (Cascada)'),
               ),
               SizedBox(height: 20.0),
@@ -156,6 +165,7 @@ class _metodologiasState extends State<metodologias> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18.0,
+                  color: Colors.red, // Texto en rojo
                 ),
               ),
               SizedBox(height: 10.0),

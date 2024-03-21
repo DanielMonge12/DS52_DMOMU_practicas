@@ -1,165 +1,143 @@
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:proyecto/Listas.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:proyecto/Register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:proyecto/Listas.dart';
 
-class LoginPage extends StatelessWidget {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class Login extends StatefulWidget {
+  final String title;
 
-  Future<void> _login(BuildContext context) async {
-    final String username = _usernameController.text.trim();
-    final String password = _passwordController.text.trim();
+  const Login({Key? key, required this.title}) : super(key: key);
+
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+
+class _LoginState extends State<Login> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
+  String errorMessage = 'contraseña o correo incorrecto';
+
+  Future<void> _login() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final String url = 'http://127.0.0.1:8000/api/login';
+    final Map<String, dynamic> body = {
+      'email': emailController.text,
+      'password': passwordController.text,
+    };
 
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:8000/api/login'),
-        body: {'email': username, 'password': password},
-      );
+      final http.Response response =
+          await http.post(Uri.parse(url), body: body);
+      final Map<String, dynamic> responseData = json.decode(response.body);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final String receivedName = responseData['profile']['name'];
-        final String receivedSurname = responseData['profile']['surname'];
-        final String receivedPhone = responseData['profile']['phone'];
-        final String receivedEmail = responseData['profile']['email'];
-        final String receivedImage = responseData['profile']['image'];
+      if (responseData.containsKey('access_token')) {
+        // Almacena la ID del usuario en SharedPreferences.
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userId', responseData['id']);
 
-        final Map<String, dynamic> userData = {
-          'name': receivedName,
-          'surname': receivedSurname,
-          'phone': receivedPhone,
-          'email': receivedEmail,
-          'image': receivedImage,
-        }; 
-
-        await _saveUserInfo(userData);
-
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => Listas()),
+          MaterialPageRoute(
+            builder: ((context) => Listas()),
+          ),
         );
       } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error de inicio de sesión'),
-              content: Text('Las credenciales ingresadas son incorrectas.'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
+        setState(() {
+          errorMessage = responseData['message'];
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Correo o contraseña incorrectos"),
+          ),
         );
       }
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error de conexión'),
-            content: Text('El usuario o contraseña son incorrectos.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+      setState(() {
+        errorMessage = 'Error de conexión';
+        isLoading = false;
+      });
     }
-  }
-
-  Future<void> _saveUserInfo(Map<String, dynamic> userData) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('name', userData['name'] ?? '');
-    prefs.setString('surname', userData['surname'] ?? '');
-    prefs.setString('phone', userData['phone'] ?? '');
-    prefs.setString('email', userData['email'] ?? '');
-    prefs.setString('image', userData['image'] ?? '');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Galaxy of Code'),
-        backgroundColor: const Color.fromARGB(0, 76, 175, 79),
-        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title), // Utiliza el título proporcionado
       ),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 0, 0, 0),
-                Color.fromARGB(255, 81, 18, 163),
-                Color.fromARGB(255, 214, 214, 214),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Image(
+              height: 150,
+              width: 150,
+              image: AssetImage('assets/images/ara.png'),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/Logo.png', height: 150),
-              SizedBox(height: 15),
-              TextField(
-                controller: _usernameController,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  labelStyle: TextStyle(color: Colors.white),
-                  icon: Icon(Icons.person, color: Colors.white),
-                ),
+            Text(
+              'Iniciar sesión',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20.0), // Espacio
+            Text(
+              'Correo:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5.0), // Espacio
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Introduce el correo',
               ),
-              SizedBox(height: 16.0),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.white),
-                  icon: Icon(Icons.lock, color: Colors.white),
-                ),
+            ),
+            SizedBox(height: 20.0), // Espacio
+            Text(
+              'Contraseña:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5.0), // Espacio
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Introduce la contraseña',
               ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () => _login(context),
-                child: Text("Login"),
-              ),
-              SizedBox(height: 10), 
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Listas()),
-                  );
-                },
-                child: Text("Register"),
-              ),
-            ],
-          ),
+              obscureText: true,
+            ),
+            SizedBox(height: 100.0), // Espacio
+            ElevatedButton(
+              onPressed: () {
+                _login();
+              },
+              child: Text('Iniciar Sesión'),
+            ),
+            SizedBox(height: 10.0), // Espacio
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Register(),
+                  ),
+                );
+              },
+              child: Text('Registrarse'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-

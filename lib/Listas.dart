@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto/InformacionGrupo.dart';
-import 'package:proyecto/metodologias.dart'; // Importa el archivo metodologias.dart
-import 'package:proyecto/tareas.dart'; // Importa el archivo tareas.dart
-import 'package:proyecto/perfil.dart'; // Importa el archivo perfil.dart
+import 'package:proyecto/metodologias.dart';
+import 'package:proyecto/tareas.dart';
+import 'package:proyecto/perfil.dart';
 import 'package:proyecto/tareas_grupo.dart';
 import 'package:proyecto/proyectos.dart';
 
@@ -14,7 +14,9 @@ class Listas extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Listas'),
+        backgroundColor: Color.fromARGB(255, 201, 199, 199),
       ),
+      backgroundColor: Colors.black, // Fondo negro para toda la pantalla
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -28,9 +30,12 @@ class Listas extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => Perfil()),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey,
+                ),
                 child: Text(
                   'Perfil',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Texto en negro
                 ),
               ),
               SizedBox(height: 16),
@@ -38,12 +43,15 @@ class Listas extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => InformacionGrupo(metodologia: 'Scrum')), // Passing 'Scrum' to InformacionGrupo constructor
+                    MaterialPageRoute(builder: (context) => InformacionGrupo(metodologia: 'Scrum')),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey,
+                ),
                 child: Text(
                   'Información de grupo',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Texto en negro
                 ),
               ),
               SizedBox(height: 16),
@@ -54,9 +62,12 @@ class Listas extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => metodologias()),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey,
+                ),
                 child: Text(
                   'Metodologías',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Texto en negro
                 ),
               ),
               SizedBox(height: 16),
@@ -67,9 +78,12 @@ class Listas extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => tareas()),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey,
+                ),
                 child: Text(
                   'Tareas',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Texto en negro
                 ),
               ),
               SizedBox(height: 16),
@@ -80,9 +94,12 @@ class Listas extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => tareas_grupo()),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey,
+                ),
                 child: Text(
                   'Tareas de Grupo',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Texto en negro
                 ),
               ),
               SizedBox(height: 16),
@@ -93,9 +110,12 @@ class Listas extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => proyectos()),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.grey,
+                ),
                 child: Text(
                   'Proyectos',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.black), // Texto en negro
                 ),
               ),
             ],

@@ -36,31 +36,91 @@ class _proyectosState extends State<proyectos> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Proyectos'),
-        backgroundColor: Colors.blue, // Cambia el color de fondo de la barra de aplicación
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.separated(
-              separatorBuilder: (context, index) => Divider(), // Agrega un separador entre elementos
-              itemCount: listaProyectos.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(listaProyectos[index]['name']),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => detallesproyectos(proyecto: listaProyectos[index]),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+        backgroundColor: Color.fromARGB(255, 221, 28, 28), // Cambia el color de fondo de la barra de aplicación
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              _mostrarDialogoCrearProyecto(context);
+            },
           ),
         ],
       ),
+      body: Container(
+        color: Colors.black, // Fondo negro para el cuerpo de la pantalla
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.separated(
+                separatorBuilder: (context, index) => Divider(), // Agrega un separador entre elementos
+                itemCount: listaProyectos.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      listaProyectos[index]['name'],
+                      style: TextStyle(color: Colors.red), // Color rojo para el texto
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => detallesproyectos(proyecto: listaProyectos[index]),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  void _mostrarDialogoCrearProyecto(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Crear Proyecto'),
+          content: TextField(
+            controller: proyectoController,
+            decoration: InputDecoration(hintText: 'Nombre del Proyecto'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Cerrar el cuadro de diálogo
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                _crearProyecto(proyectoController.text);
+                Navigator.pop(context); // Cerrar el cuadro de diálogo
+              },
+              child: Text('Crear'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _crearProyecto(String nombreProyecto) async {
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/projects/create'),
+      body: {'name': nombreProyecto},
+    );
+
+    if (response.statusCode == 201) {
+      // Proyecto creado exitosamente
+      // Actualizar la lista de proyectos o realizar otras acciones necesarias
+    } else {
+      // Error al crear el proyecto
+      print('Error al crear el proyecto: ${response.body}');
+      // Puedes mostrar un mensaje de error al usuario si lo deseas
+    }
   }
 }

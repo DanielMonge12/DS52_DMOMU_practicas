@@ -9,9 +9,13 @@ class InformacionGrupo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        title: const Text('Información del Grupo'),
+        backgroundColor: Colors.black, // Fondo negro para la AppBar
+        title: Text(
+          'Información del Grupo',
+          style: TextStyle(color: Colors.red), // Texto en rojo para el título de la AppBar
+        ),
       ),
+      backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -19,22 +23,22 @@ class InformacionGrupo extends StatelessWidget {
           children: [
             Text(
               'Nombre del Grupo: GN-1-1',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red), // Texto en rojo
             ),
             SizedBox(height: 10),
             Text(
               'Carrera: Gestión de Negocios',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.red), // Texto en rojo
             ),
             SizedBox(height: 10),
             Text(
               'Método Ágil Utilizado: $metodologia',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.red), // Texto en rojo
             ),
             SizedBox(height: 20),
             Text(
               'Integrantes:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red), // Texto en rojo
             ),
             SizedBox(height: 10),
             Text(
@@ -44,7 +48,7 @@ class InformacionGrupo extends StatelessWidget {
               '4. Ana Martínez\n'
               '5. Pedro Rodríguez\n'
               '6. Laura González',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.red), // Texto en rojo
             ),
           ],
         ),
