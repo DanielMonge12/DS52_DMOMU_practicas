@@ -107,7 +107,7 @@ class Listas extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => proyectos()),
+                    MaterialPageRoute(builder: (context) => Proyectos()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

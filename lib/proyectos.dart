@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:proyecto/detallesproyectos.dart';
 
-class proyectos extends StatefulWidget {
+class Proyectos extends StatefulWidget {
   @override
-  _proyectosState createState() => _proyectosState();
+  _ProyectosState createState() => _ProyectosState();
 }
 
-class _proyectosState extends State<proyectos> {
+class _ProyectosState extends State<Proyectos> {
   List<dynamic> listaProyectos = [];
   TextEditingController proyectoController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController durationController = TextEditingController();
+  TextEditingController tagsIdController = TextEditingController();
 
   Future<List<dynamic>> obtenerProyectos() async {
     final response = await http.get(Uri.parse('https://monge.terrabyteco.com/api/projects'));
@@ -36,7 +39,7 @@ class _proyectosState extends State<proyectos> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Proyectos'),
-        backgroundColor: Color.fromARGB(255, 221, 28, 28), // Cambia el color de fondo de la barra de aplicación
+        backgroundColor: Color.fromARGB(255, 221, 28, 28),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -47,33 +50,61 @@ class _proyectosState extends State<proyectos> {
         ],
       ),
       body: Container(
-        color: Colors.black, // Fondo negro para el cuerpo de la pantalla
+        color: Colors.black,
         child: Column(
           children: [
             Expanded(
               child: ListView.separated(
-                separatorBuilder: (context, index) => Divider(), // Agrega un separador entre elementos
-                itemCount: listaProyectos.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      listaProyectos[index]['name'],
-                      style: TextStyle(color: Colors.red), // Color rojo para el texto
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => detallesproyectos(proyecto: listaProyectos[index]),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+  separatorBuilder: (context, index) => Divider(),
+  itemCount: listaProyectos.length,
+  itemBuilder: (context, index) {
+    return ListTile(
+      title: Text(
+        listaProyectos[index]['name'],
+        style: TextStyle(color: Colors.red),
+      ),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => detallesproyectos(proyecto: listaProyectos[index]),
+          ),
+        );
+      },
+      onLongPress: () {
+        _mostrarDialogoEditarEliminar(context, listaProyectos[index]);
+      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              _mostrarDialogoEditar(context, listaProyectos[index]);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              _eliminarProyecto(listaProyectos[index]['id']);
+            },
+          ),
+        ],
+      ),
+    );
+  },
+),
+
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _mostrarDialogoCrearProyecto(context);
+        },
+        tooltip: 'Crear Proyecto',
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -84,9 +115,29 @@ class _proyectosState extends State<proyectos> {
       builder: (context) {
         return AlertDialog(
           title: Text('Crear Proyecto'),
-          content: TextField(
-            controller: proyectoController,
-            decoration: InputDecoration(hintText: 'Nombre del Proyecto'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: proyectoController,
+                decoration: InputDecoration(hintText: 'Nombre del Proyecto'),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: dateController,
+                decoration: InputDecoration(hintText: 'Fecha (YYYY-MM-DD)'),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: durationController,
+                decoration: InputDecoration(hintText: 'Duración'),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: tagsIdController,
+                decoration: InputDecoration(hintText: 'ID de etiquetas'),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -97,7 +148,12 @@ class _proyectosState extends State<proyectos> {
             ),
             TextButton(
               onPressed: () {
-                _crearProyecto(proyectoController.text);
+                _crearProyecto(
+                  proyectoController.text,
+                  dateController.text,
+                  durationController.text,
+                  tagsIdController.text,
+                );
                 Navigator.pop(context); // Cerrar el cuadro de diálogo
               },
               child: Text('Crear'),
@@ -108,18 +164,179 @@ class _proyectosState extends State<proyectos> {
     );
   }
 
-  void _crearProyecto(String nombreProyecto) async {
+  void _crearProyecto(String nombreProyecto, String fecha, String duracion, String tagsId) async {
     final response = await http.post(
       Uri.parse('https://monge.terrabyteco.com/api/projects/create'),
-      body: {'name': nombreProyecto},
+      body: {
+        'name': nombreProyecto,
+        'date': fecha,
+        'duration': duracion,
+        'tags_id': tagsId,
+      },
     );
 
     if (response.statusCode == 201) {
       // Proyecto creado exitosamente
       // Actualizar la lista de proyectos o realizar otras acciones necesarias
+      obtenerProyectos().then((value) {
+        setState(() {
+          listaProyectos = value;
+        });
+      });
     } else {
       // Error al crear el proyecto
       print('Error al crear el proyecto: ${response.body}');
+      // Puedes mostrar un mensaje de error al usuario si lo deseas
+    }
+  }
+
+  void _mostrarDialogoEditarEliminar(BuildContext context, dynamic proyecto) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Editar o Eliminar Proyecto'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Nombre del Proyecto: ${proyecto['name']}'),
+              SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Cerrar el cuadro de diálogo
+                  _mostrarDialogoEditar(context, proyecto);
+                },
+                child: Text('Editar'),
+              ),
+              SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Cerrar el cuadro de diálogo
+                  _eliminarProyecto(proyecto['id']);
+                },
+                child: Text('Eliminar'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Cerrar el cuadro de diálogo
+              },
+              child: Text('Cancelar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _mostrarDialogoEditar(BuildContext context, dynamic proyecto) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Editar Proyecto'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: TextEditingController(text: proyecto['name'] != null ? proyecto['name'].toString() : ''),
+              decoration: InputDecoration(hintText: 'Nombre del Proyecto'),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              controller: TextEditingController(text: proyecto['date'] != null ? proyecto['date'].toString() : ''),
+              decoration: InputDecoration(hintText: 'Fecha (YYYY-MM-DD)'),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              controller: TextEditingController(text: proyecto['duration'] != null ? proyecto['duration'].toString() : ''),
+              decoration: InputDecoration(hintText: 'Duración'),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              controller: TextEditingController(text: proyecto['tags_id'] != null ? proyecto['tags_id'].toString() : ''),
+              decoration: InputDecoration(hintText: 'ID de etiquetas'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Cerrar el cuadro de diálogo
+            },
+            child: Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              _actualizarProyecto(
+  proyecto['id'].toString(),
+  proyectoController.text,
+  dateController.text,
+  durationController.text,
+  tagsIdController.text,
+);
+
+              Navigator.pop(context); // Cerrar el cuadro de diálogo
+            },
+            child: Text('Actualizar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+  void _actualizarProyecto(
+    String id,
+    String nombreProyecto,
+    String fecha,
+    String duracion,
+    String tagsId,
+  ) async {
+    final response = await http.put(
+      Uri.parse('https://monge.terrabyteco.com/api/projects/update/$id'),
+      body: {
+        'name': nombreProyecto,
+        'date': fecha,
+        'duration': duracion,
+        'tags_id': tagsId,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Proyecto actualizado exitosamente
+      // Actualizar la lista de proyectos o realizar otras acciones necesarias
+      obtenerProyectos().then((value) {
+        setState(() {
+          listaProyectos = value;
+        });
+      });
+    } else {
+      // Error al actualizar el proyecto
+      print('Error al actualizar el proyecto: ${response.body}');
+      // Puedes mostrar un mensaje de error al usuario si lo deseas
+    }
+  }
+
+  void _eliminarProyecto(String id) async {
+    final response = await http.delete(
+      Uri.parse('https://monge.terrabyteco.com/api/projects/delete/$id'),
+    );
+
+    if (response.statusCode == 200) {
+      // Proyecto eliminado exitosamente
+      // Actualizar la lista de proyectos o realizar otras acciones necesarias
+      obtenerProyectos().then((value) {
+        setState(() {
+          listaProyectos = value;
+        });
+      });
+    } else {
+      // Error al eliminar el proyecto
+      print('Error al eliminar el proyecto: ${response.body}');
       // Puedes mostrar un mensaje de error al usuario si lo deseas
     }
   }
