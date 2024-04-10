@@ -129,7 +129,7 @@ class _LoginState extends State<Login> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const Register(),
+                    builder: (context) => const Register(title: 'Página de Registro'),
                   ),
                 );
               },

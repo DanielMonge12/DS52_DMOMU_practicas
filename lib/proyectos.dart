@@ -55,46 +55,46 @@ class _ProyectosState extends State<Proyectos> {
           children: [
             Expanded(
               child: ListView.separated(
-  separatorBuilder: (context, index) => Divider(),
-  itemCount: listaProyectos.length,
-  itemBuilder: (context, index) {
-    return ListTile(
-      title: Text(
-        listaProyectos[index]['name'],
-        style: TextStyle(color: Colors.red),
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => detallesproyectos(proyecto: listaProyectos[index]),
-          ),
-        );
-      },
-      onLongPress: () {
-        _mostrarDialogoEditarEliminar(context, listaProyectos[index]);
-      },
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              _mostrarDialogoEditar(context, listaProyectos[index]);
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              _eliminarProyecto(listaProyectos[index]['id']);
-            },
-          ),
-        ],
-      ),
-    );
-  },
-),
-
+                separatorBuilder: (context, index) => Divider(),
+                itemCount: listaProyectos.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      listaProyectos[index]['name'],
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => detallesproyectos(proyecto: listaProyectos[index]),
+                        ),
+                      );
+                    },
+                    onLongPress: () {
+                      _mostrarDialogoEditarEliminar(context, listaProyectos[index]);
+                    },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            _mostrarDialogoEditar(context, listaProyectos[index]);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            _eliminarProyecto(listaProyectos[index]['id'].toString());
+;
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -164,7 +164,8 @@ class _ProyectosState extends State<Proyectos> {
     );
   }
 
-  void _crearProyecto(String nombreProyecto, String fecha, String duracion, String tagsId) async {
+void _crearProyecto(String nombreProyecto, String fecha, String duracion, String tagsId) async {
+  try {
     final response = await http.post(
       Uri.parse('https://monge.terrabyteco.com/api/projects/create'),
       body: {
@@ -186,9 +187,20 @@ class _ProyectosState extends State<Proyectos> {
     } else {
       // Error al crear el proyecto
       print('Error al crear el proyecto: ${response.body}');
-      // Puedes mostrar un mensaje de error al usuario si lo deseas
+      // Mostrar un mensaje de error al usuario
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error al crear el proyecto'),
+      ));
     }
+  } catch (e) {
+    // Capturar cualquier excepción y mostrarla
+    print('Excepción al crear el proyecto: $e');
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Error: $e'),
+    ));
   }
+}
+
 
   void _mostrarDialogoEditarEliminar(BuildContext context, dynamic proyecto) {
     showDialog(
@@ -232,6 +244,12 @@ class _ProyectosState extends State<Proyectos> {
   }
 
   void _mostrarDialogoEditar(BuildContext context, dynamic proyecto) {
+  proyectoController.text = proyecto['name'] ?? '';
+  dateController.text = proyecto['date'] ?? '';
+  durationController.text = proyecto['duration'] ?? '';
+  tagsIdController.text = proyecto['tags_id'] != null ? proyecto['tags_id'].toString() : '';
+
+
   showDialog(
     context: context,
     builder: (context) {
@@ -241,22 +259,22 @@ class _ProyectosState extends State<Proyectos> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: TextEditingController(text: proyecto['name'] != null ? proyecto['name'].toString() : ''),
+              controller: proyectoController,
               decoration: InputDecoration(hintText: 'Nombre del Proyecto'),
             ),
             SizedBox(height: 8),
             TextField(
-              controller: TextEditingController(text: proyecto['date'] != null ? proyecto['date'].toString() : ''),
+              controller: dateController,
               decoration: InputDecoration(hintText: 'Fecha (YYYY-MM-DD)'),
             ),
             SizedBox(height: 8),
             TextField(
-              controller: TextEditingController(text: proyecto['duration'] != null ? proyecto['duration'].toString() : ''),
+              controller: durationController,
               decoration: InputDecoration(hintText: 'Duración'),
             ),
             SizedBox(height: 8),
             TextField(
-              controller: TextEditingController(text: proyecto['tags_id'] != null ? proyecto['tags_id'].toString() : ''),
+              controller: tagsIdController,
               decoration: InputDecoration(hintText: 'ID de etiquetas'),
             ),
           ],
@@ -271,13 +289,12 @@ class _ProyectosState extends State<Proyectos> {
           TextButton(
             onPressed: () {
               _actualizarProyecto(
-  proyecto['id'].toString(),
-  proyectoController.text,
-  dateController.text,
-  durationController.text,
-  tagsIdController.text,
-);
-
+                proyecto['id'].toString(),
+                proyectoController.text,
+                dateController.text,
+                durationController.text,
+                int.parse(tagsIdController.text),
+              );
               Navigator.pop(context); // Cerrar el cuadro de diálogo
             },
             child: Text('Actualizar'),
@@ -289,20 +306,22 @@ class _ProyectosState extends State<Proyectos> {
 }
 
 
-  void _actualizarProyecto(
-    String id,
-    String nombreProyecto,
-    String fecha,
-    String duracion,
-    String tagsId,
-  ) async {
+ void _actualizarProyecto(
+  String id,
+  String nombreProyecto,
+  String fecha,
+  String duracion,
+  int tagsId, // Especificamos que tagsId es de tipo entero (int)
+) async {
+  try {
+    // Aquí colocas el código para realizar la actualización del proyecto
     final response = await http.put(
-      Uri.parse('https://monge.terrabyteco.com/api/projects/update/$id'),
+      Uri.parse('https://monge.terrabyteco.com/api/projects/$id/update'),
       body: {
         'name': nombreProyecto,
         'date': fecha,
         'duration': duracion,
-        'tags_id': tagsId,
+        'tags_id': tagsId.toString(), // Convertimos tagsId a String para enviarlo en la solicitud
       },
     );
 
@@ -319,25 +338,43 @@ class _ProyectosState extends State<Proyectos> {
       print('Error al actualizar el proyecto: ${response.body}');
       // Puedes mostrar un mensaje de error al usuario si lo deseas
     }
+  } catch (e) {
+    // Capturar cualquier excepción y mostrarla
+    print('Excepción al actualizar el proyecto: $e');
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Error al actualizar el proyecto: $e'),
+    ));
   }
+}
+
+
 
   void _eliminarProyecto(String id) async {
+  try {
     final response = await http.delete(
-      Uri.parse('https://monge.terrabyteco.com/api/projects/delete/$id'),
+      Uri.parse('https://monge.terrabyteco.com/api/projects/$id/delete'),
     );
 
     if (response.statusCode == 200) {
-      // Proyecto eliminado exitosamente
-      // Actualizar la lista de proyectos o realizar otras acciones necesarias
       obtenerProyectos().then((value) {
         setState(() {
           listaProyectos = value;
         });
       });
     } else {
-      // Error al eliminar el proyecto
       print('Error al eliminar el proyecto: ${response.body}');
-      // Puedes mostrar un mensaje de error al usuario si lo deseas
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error al eliminar el proyecto'),
+      ));
     }
+  } catch (e) {
+    print('Excepción al eliminar el proyecto: $e');
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Error: $e'),
+    ));
   }
 }
+
+
+}
+

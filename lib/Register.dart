@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'Login.dart';
 
 class Register extends StatefulWidget {
-  const Register({Key? key}) : super(key: key);
+  final String title;
+
+  const Register({Key? key, required this.title}) : super(key: key);
 
   @override
   _RegisterState createState() => _RegisterState();
@@ -13,7 +16,7 @@ class _RegisterState extends State<Register> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController surnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-final TextEditingController phoneController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
 
@@ -23,7 +26,7 @@ final TextEditingController phoneController = TextEditingController();
       'name': nameController.text,
       'surname': surnameController.text,
       'email': emailController.text,
-      'phone': phoneController.text, 
+      'phone': phoneController.text,
       'password': passwordController.text,
       'image': imageController.text,
     };
@@ -36,8 +39,11 @@ final TextEditingController phoneController = TextEditingController();
       );
 
       if (response.statusCode == 200) {
-        // Si el registro fue exitoso, puedes navegar a la pantalla de inicio de sesión
-        Navigator.pushReplacementNamed(context, '/login');
+     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Login(title: 'Registro exitoso!')),);
       } else {
         // Si el registro falló, puedes mostrar un mensaje de error al usuario
         showDialog(
@@ -81,7 +87,6 @@ final TextEditingController phoneController = TextEditingController();
             TextFormField(
               controller: surnameController,
               decoration: InputDecoration(labelText: 'Apellido'),
-              
             ),
             SizedBox(height: 16),
             TextFormField(
@@ -91,8 +96,7 @@ final TextEditingController phoneController = TextEditingController();
             SizedBox(height: 16),
             TextFormField(
               controller: phoneController,
-              decoration: InputDecoration(labelText: 'Telefono'),
-              
+              decoration: InputDecoration(labelText: 'Teléfono'),
             ),
             SizedBox(height: 16),
             TextFormField(
@@ -103,12 +107,12 @@ final TextEditingController phoneController = TextEditingController();
             SizedBox(height: 16),
             TextFormField(
               controller: imageController,
-              decoration: InputDecoration(labelText: 'Imagen'),
-              
+              decoration: InputDecoration(labelText: 'Imagen URL'),
             ),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: registerUser,
+            
               child: Text('Registrarse'),
             ),
           ],
